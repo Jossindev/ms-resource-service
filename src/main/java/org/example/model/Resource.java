@@ -12,8 +12,8 @@ public class Resource {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    String id;
+    Integer id;
 
-    String data;
+    byte[] data;
 
 }
