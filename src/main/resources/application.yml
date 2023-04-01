@@ -6,3 +6,10 @@ spring:
     driverClassName: org.h2.Driver
   jpa:
     spring.jpa.database-platform: org.hibernate.dialect.H2Dialect
+
+aws:
+  region: us-east-1
+  access-key: test
+  secret-key: test
+  bucket-name: resource-bucket
+  s3.endpoint: http://localhost:4566
