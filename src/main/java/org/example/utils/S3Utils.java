@@ -1,14 +1,12 @@
 package org.example.utils;
 
-import java.security.SecureRandom;
-import java.util.Arrays;
-
+import com.amazonaws.services.s3.AmazonS3;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.amazonaws.services.s3.AmazonS3;
-
-import lombok.RequiredArgsConstructor;
+import java.util.Arrays;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -22,7 +20,7 @@ public class S3Utils {
         if (!s3Client.doesBucketExistV2(bucketName)) {
             s3Client.createBucket(bucketName);
         }
-        String objectKey = String.valueOf(new SecureRandom().nextInt());
+        String objectKey = UUID.randomUUID() + ".mp3";
         try {
             s3Client.putObject(bucketName, objectKey, Arrays.toString(mp3File));
             return objectKey;
@@ -35,8 +33,8 @@ public class S3Utils {
         System.out.println(s3Client.listBuckets());
         try {
             return s3Client.getObject(bucketName, objectKey)
-                .getObjectContent()
-                .readAllBytes();
+                    .getObjectContent()
+                    .readAllBytes();
         } catch (Exception e) {
             throw new RuntimeException("Error while downloading the file from S3", e);
         }

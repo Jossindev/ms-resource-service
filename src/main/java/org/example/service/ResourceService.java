@@ -34,7 +34,7 @@ public class ResourceService {
             throw new ResourceNotFoundException("Resource not found. Id: " + id);
         }
 
-        return localstackStorage.downloadFile("resource.get().s3Key");
+        return localstackStorage.downloadFile(resource.get().s3Key);
     }
 
     public List<Integer> deleteResources(List<Integer> ids) {
