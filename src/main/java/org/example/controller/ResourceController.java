@@ -59,7 +59,7 @@ public class ResourceController {
             return new ResponseEntity<>(resourceData, HttpStatus.PARTIAL_CONTENT);
         }
 
-        return ResponseEntity.status(HttpStatus.OK).body(resourceData);
+        return ResponseEntity.ok(resourceData);
     }
 
     @DeleteMapping
