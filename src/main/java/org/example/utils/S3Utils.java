@@ -1,12 +1,15 @@
 package org.example.utils;
 
-import com.amazonaws.services.s3.AmazonS3;
-import lombok.RequiredArgsConstructor;
+import java.io.ByteArrayInputStream;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
-import java.util.UUID;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+
+import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
@@ -14,15 +17,19 @@ public class S3Utils {
 
     @Value("${aws.bucket-name}")
     private String bucketName;
-    private final AmazonS3 s3Client;
+    private final AmazonS3 amazonS3;
 
     public String uploadFile(byte[] mp3File) {
-        if (!s3Client.doesBucketExistV2(bucketName)) {
-            s3Client.createBucket(bucketName);
+        if (!amazonS3.doesBucketExistV2(bucketName)) {
+            amazonS3.createBucket(bucketName);
         }
         String objectKey = UUID.randomUUID() + ".mp3";
         try {
-            s3Client.putObject(bucketName, objectKey, Arrays.toString(mp3File));
+            ByteArrayInputStream byteStream = new ByteArrayInputStream(mp3File);
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentLength(mp3File.length);
+            metadata.setContentType("application/octet-stream");
+            amazonS3.putObject(bucketName, objectKey, byteStream, metadata);
             return objectKey;
         } catch (Exception e) {
             throw new RuntimeException("Error while uploading the file to S3", e);
@@ -30,11 +37,10 @@ public class S3Utils {
     }
 
     public byte[] downloadFile(String objectKey) {
-        System.out.println(s3Client.listBuckets());
         try {
-            return s3Client.getObject(bucketName, objectKey)
-                    .getObjectContent()
-                    .readAllBytes();
+            return amazonS3.getObject(bucketName, objectKey)
+                .getObjectContent()
+                .readAllBytes();
         } catch (Exception e) {
             throw new RuntimeException("Error while downloading the file from S3", e);
         }
@@ -42,7 +48,7 @@ public class S3Utils {
 
     public void deleteFile(String objectKey) {
         try {
-            s3Client.deleteObject(bucketName, objectKey);
+            amazonS3.deleteObject(bucketName, objectKey);
         } catch (Exception e) {
             throw new RuntimeException("Error while deleting the file from S3", e);
         }

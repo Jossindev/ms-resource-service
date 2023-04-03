@@ -70,6 +70,6 @@ public class ResourceController {
             .collect(Collectors.toList());
         List<Integer> deletedIds = resourceService.deleteResources(ids);
         DeletedResourceResponse deletedResourceResponse = new DeletedResourceResponse(deletedIds);
-        return ResponseEntity.status(HttpStatus.OK).body(deletedResourceResponse);
+        return ResponseEntity.ok(deletedResourceResponse);
     }
 }

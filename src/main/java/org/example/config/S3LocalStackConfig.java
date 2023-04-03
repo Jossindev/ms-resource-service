@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.client.builder.AwsClientBuilder;
+import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 
@@ -28,7 +28,7 @@ public class S3LocalStackConfig {
     @Value("${aws.bucket-name}")
     private String bucketName;
 
-    @Bean()
+    @Bean(name = "amazonS3")
     public AmazonS3 amazonS3() {
         return AmazonS3ClientBuilder.standard()
             .withCredentials(getCredentialsProvider())
@@ -36,8 +36,8 @@ public class S3LocalStackConfig {
             .build();
     }
 
-    private AwsClientBuilder.EndpointConfiguration getEndpointConfiguration(String url) {
-        return new AwsClientBuilder.EndpointConfiguration(url, region);
+    private EndpointConfiguration getEndpointConfiguration(String url) {
+        return new EndpointConfiguration(url, region);
     }
 
     private AWSStaticCredentialsProvider getCredentialsProvider() {
