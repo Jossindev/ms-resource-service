@@ -18,13 +18,16 @@ public class ResourceService {
 
     private final S3Utils localstackStorage;
     private final ResourceRepository resourceRepository;
+    private final ResourceNotificationProducerService notificationService;
 
     public Integer uploadResources(byte[] mp3File) {
         String key = localstackStorage.uploadFile(mp3File);
         Resource resource = Resource.builder()
             .s3Key(key)
             .build();
-        return resourceRepository.save(resource).getId();
+        Integer resourceId = resourceRepository.save(resource).getId();
+        notificationService.notifyResourceUploaded(resourceId);
+        return resourceId;
     }
 
     public byte[] getResourceData(Integer id) throws ResourceNotFoundException {
