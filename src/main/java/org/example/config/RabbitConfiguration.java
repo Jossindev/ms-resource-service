@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitConfiguration {
 
-    @Value("queue.processing-queue")
+    @Value("${queue.processing-queue}")
     private String queueName;
 
     @Bean

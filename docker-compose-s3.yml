@@ -19,6 +19,16 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./scripts/localstack/init-s3-bucket.sh:/docker-entrypoint-initaws.d/init-s3-bucket.sh
 
+  rabbitmq:
+    image: rabbitmq:3.7-management
+    networks:
+      - network
+    ports:
+      - 5672:5672
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+
   postgres:
     container_name: postgress
     image: postgres:10.5
@@ -35,3 +45,7 @@ services:
       - '5432:5432'
     volumes:
       - ./scripts/sql:/docker-entrypoint-initdb.d/
+
+networks:
+  network:
+    internal: true
