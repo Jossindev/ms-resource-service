@@ -6,6 +6,11 @@ spring:
     driverClassName: org.h2.Driver
   jpa:
     spring.jpa.database-platform: org.hibernate.dialect.H2Dialect
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
 
 aws:
   region: us-east-1
@@ -13,3 +18,6 @@ aws:
   secret-key: test
   bucket-name: resource-bucket
   s3.endpoint: http://127.0.0.1:4566
+
+queue:
+  processing-queue: PROCESSING_QUEUE
