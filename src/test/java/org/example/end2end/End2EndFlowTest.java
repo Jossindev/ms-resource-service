@@ -66,12 +66,12 @@ public class End2EndFlowTest {
         assertThat(resource).isEqualTo(null);
 
         ResponseEntity<String> postResponse = restTemplate.postForEntity(
-            "http://localhost:8080/resources", request, String.class);
+            "/resources", request, String.class);
         assertThat(postResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(postResponse.getBody()).isEqualTo("{\"id\":1}");
 
         await().atMost(Duration.ofSeconds(30)).untilAsserted(() -> {
-            ResponseEntity<byte[]> response = restTemplate.getForEntity("http://localhost:8080/resources/1", byte[].class);
+            ResponseEntity<byte[]> response = restTemplate.getForEntity("/resources/1", byte[].class);
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         });
 
