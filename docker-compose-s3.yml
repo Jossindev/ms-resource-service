@@ -1,6 +1,17 @@
 version: '3.7'
 
 services:
+  app:
+    image: ms-resource-app
+    restart: always
+    ports:
+      - 8080:8080
+    environment:
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+    depends_on:
+      - rabbitmq
+
   localstack:
     container_name: localstack
     image: localstack/localstack:latest
@@ -21,30 +32,12 @@ services:
 
   rabbitmq:
     image: rabbitmq:3.7-management
-    networks:
-      - network
     ports:
       - 5672:5672
+      - 15672:15672
     environment:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
-
-  postgres:
-    container_name: postgress
-    image: postgres:10.5
-    restart: always
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=file_info
-    logging:
-      options:
-        max-size: 10m
-        max-file: "3"
-    ports:
-      - '5432:5432'
-    volumes:
-      - ./scripts/sql:/docker-entrypoint-initdb.d/
 
 networks:
   network:
