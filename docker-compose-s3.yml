@@ -1,6 +1,38 @@
 version: '3.7'
 
 services:
+  my-app:
+    image: my-spring-boot-app
+    ports:
+      - "8080:8080"
+    links:
+      - rabbitmq
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/testDB
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+
+  db:
+    container_name: postgress
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_DB=testDB
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    logging:
+      options:
+        max-size: 10m
+        max-file: "3"
+    ports:
+      - '5432:5432'
+    volumes:
+      #      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./scripts/sql:/docker-entrypoint-initdb.d/
+
   localstack:
     container_name: localstack
     image: localstack/localstack:latest
@@ -21,30 +53,11 @@ services:
 
   rabbitmq:
     image: rabbitmq:3.7-management
-    networks:
-      - network
     ports:
       - 5672:5672
     environment:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
-
-  postgres:
-    container_name: postgress
-    image: postgres:10.5
-    restart: always
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=file_info
-    logging:
-      options:
-        max-size: 10m
-        max-file: "3"
-    ports:
-      - '5432:5432'
-    volumes:
-      - ./scripts/sql:/docker-entrypoint-initdb.d/
 
 networks:
   network:

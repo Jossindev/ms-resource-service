@@ -1,11 +1,14 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:mydb
-    username: sa
-    password: password
-    driverClassName: org.h2.Driver
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://db:5432/testDB
+    username: postgres
+    password: postgres
   jpa:
-    spring.jpa.database-platform: org.hibernate.dialect.H2Dialect
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
   rabbitmq:
     host: localhost
     port: 5672
