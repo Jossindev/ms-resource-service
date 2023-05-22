@@ -1,4 +1,4 @@
-FROM openjdk:17-jdk-slim
+FROM openjdk:17-jdk-alpine
 
 # Add a volume pointing to /tmp
 VOLUME /tmp
