@@ -1,5 +1,5 @@
 
-To run application in container:
+*To run application in 3 containers separately:
  
 1.Create jar and build Dockerfile image
 ```
@@ -13,4 +13,9 @@ docker network create rabbit_network
 3.Run container using docker compose
 ```
 docker-compose up
+```
+
+*To run application in one container:
+```
+docker-compose -f docker-compose-full.yml up
 ```
