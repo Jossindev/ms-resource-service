@@ -31,6 +31,7 @@ public class S3LocalStackConfig {
     @Bean(name = "amazonS3")
     public AmazonS3 amazonS3() {
         return AmazonS3ClientBuilder.standard()
+            .enablePathStyleAccess()
             .withCredentials(getCredentialsProvider())
             .withEndpointConfiguration(getEndpointConfiguration(s3EndpointUrl))
             .build();

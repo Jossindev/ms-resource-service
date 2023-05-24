@@ -1,0 +1,52 @@
+version: '3.7'
+
+services:
+  ms-resource-app:
+    image: ms-resource
+    restart: always
+    ports:
+      - "127.0.0.1:8080:8080"
+    environment:
+      SPRING_RABBITMQ_HOST: rabbit
+      SPRING_RABBITMQ_PORT: 5672
+    depends_on:
+      - rabbitmq
+    networks:
+      - microservices_network
+      - rabbit_network
+      - localstack_network
+
+  localstack:
+    container_name: localstack
+    image: localstack/localstack:latest
+    environment:
+      - SERVICES=s3
+      - AWS_DEFAULT_REGION=us-east-1
+    ports:
+      - '127.0.0.1:4566:4566'
+    networks:
+      - localstack_network
+    volumes:
+      - ${TEMPDIR:-/tmp/localstack}:/tmp/localstack
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./scripts/localstack/init-s3-bucket.sh:/docker-entrypoint-initaws.d/init-s3-bucket.sh
+
+  rabbitmq:
+    container_name: rabbit
+    image: rabbitmq:3.7-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    networks:
+      - rabbit_network
+
+networks:
+  rabbit_network:
+    external: true
+  microservices_network:
+    external: true
+  localstack_network:
+    external: true

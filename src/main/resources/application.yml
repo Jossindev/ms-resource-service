@@ -17,7 +17,7 @@ aws:
   access-key: test
   secret-key: test
   bucket-name: resource-bucket
-  s3.endpoint: http://127.0.0.1:4566
+  s3.endpoint: http://localstack:4566
 
 queue:
   processing-queue: PROCESSING_QUEUE

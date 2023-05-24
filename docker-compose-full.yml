@@ -1,0 +1,78 @@
+version: '3.7'
+
+services:
+  ms-song-app:
+    container_name: ms-song-app
+    image: ms-song
+    ports:
+      - "8082:8082"
+    networks:
+      - microservices_network
+
+  ms-resource-processor-app:
+    container_name: ms-resource-processor-app
+    image: ms-resource-processor
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_RABBITMQ_HOST: rabbit
+      SPRING_RABBITMQ_PORT: 5672
+    networks:
+      - rabbit_network
+      - microservices_network
+    depends_on:
+      - rabbit
+      - ms-song-app
+
+  ms-resource-app:
+    container_name: ms-resource-app
+    image: ms-resource
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_RABBITMQ_HOST: rabbit
+      SPRING_RABBITMQ_PORT: 5672
+    depends_on:
+      - rabbit
+      - ms-resource-processor-app
+      - ms-song-app
+    networks:
+      - rabbit_network
+      - microservices_network
+      - localstack_network
+
+  localstack:
+    container_name: localstack
+    image: localstack/localstack:latest
+    environment:
+      - SERVICES=s3
+      - AWS_DEFAULT_REGION=us-east-1
+    ports:
+      - '127.0.0.1:4566:4566'
+    networks:
+      - localstack_network
+    volumes:
+      - ${TEMPDIR:-/tmp/localstack}:/tmp/localstack
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./scripts/localstack/init-s3-bucket.sh:/docker-entrypoint-initaws.d/init-s3-bucket.sh
+
+  rabbit:
+    container_name: rabbit
+    image: rabbitmq:3.7-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    networks:
+      - rabbit_network
+
+networks:
+  rabbit_network:
+    external: true
+  microservices_network:
+    external: true
+  localstack_network:
+    external: true
