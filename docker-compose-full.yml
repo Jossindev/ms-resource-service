@@ -8,6 +8,8 @@ services:
       - "8082:8082"
     networks:
       - microservices_network
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
 
   ms-resource-processor-app:
     container_name: ms-resource-processor-app
@@ -17,6 +19,7 @@ services:
     environment:
       SPRING_RABBITMQ_HOST: rabbit
       SPRING_RABBITMQ_PORT: 5672
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
     networks:
       - rabbit_network
       - microservices_network
@@ -33,6 +36,7 @@ services:
     environment:
       SPRING_RABBITMQ_HOST: rabbit
       SPRING_RABBITMQ_PORT: 5672
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
     depends_on:
       - rabbit
       - ms-resource-processor-app
@@ -41,6 +45,26 @@ services:
       - rabbit_network
       - microservices_network
       - localstack_network
+
+  eureka-server-app:
+    container_name: eureka-server
+    image: eureka-server
+    restart: always
+    ports:
+      - "8761:8761"
+    networks:
+      - microservices_network
+
+  api-gateway-app:
+    container_name: api-gateway
+    image: api-gateway
+    restart: always
+    ports:
+      - "8090:8090"
+    networks:
+      - microservices_network
+    depends_on:
+      - eureka-server-app
 
   localstack:
     container_name: localstack
