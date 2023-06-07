@@ -11,6 +11,8 @@ spring:
     port: 5672
     username: guest
     password: guest
+  application:
+    name: resource-service
 
 aws:
   region: us-east-1
@@ -21,3 +23,6 @@ aws:
 
 queue:
   processing-queue: PROCESSING_QUEUE
+
+eureka:
+  client.serviceUrl.defaultZone: http://localhost:8761/eureka/
