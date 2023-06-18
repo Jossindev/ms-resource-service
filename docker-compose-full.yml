@@ -1,6 +1,16 @@
 version: '3.7'
 
 services:
+  ms-storage-app:
+    container_name: ms-storage-app
+    image: ms-storage
+    ports:
+      - "8083:8083"
+    networks:
+      - microservices_network
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+
   ms-song-app:
     container_name: ms-song-app
     image: ms-song

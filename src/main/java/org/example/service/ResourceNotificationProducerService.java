@@ -27,7 +27,7 @@ public class ResourceNotificationProducerService {
     @Retryable(value = MessagingException.class, maxAttempts = 3, backoff = @Backoff(delay = 2000))
     public void notifyResourceUploaded(int resourceId) {
         try {
-            log.info("Try to send notification to queue");
+            log.info("Try to send notification to processing queue");
             rabbitTemplate.convertAndSend(processingQueue, resourceId);
         } catch (Exception e) {
             log.error("Exception occurred while sending resource with id:{} to the {}", resourceId, processingQueue, e);
