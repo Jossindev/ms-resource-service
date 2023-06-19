@@ -9,7 +9,7 @@ import javax.validation.constraints.Size;
 
 import org.example.dto.DeletedResourceResponse;
 import org.example.dto.ResourceResponse;
-import org.example.service.ResourceService;
+import org.example.service.ResourceFacade;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,14 +29,15 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ResourceController {
 
-    private final ResourceService resourceService;
+    private final ResourceFacade resourceFacade;
 
     @PostMapping(consumes = "audio/mpeg")
     public ResponseEntity<ResourceResponse> uploadResource(@RequestBody byte[] mp3File) {
         if (mp3File == null || mp3File.length == 0) {
             return ResponseEntity.badRequest().build();
         }
-        Integer id = resourceService.uploadResources(mp3File);
+
+        Integer id = resourceFacade.saveFileToStagingStorage(mp3File);
         ResourceResponse response = new ResourceResponse(id);
         return ResponseEntity.ok(response);
     }
@@ -45,7 +46,7 @@ public class ResourceController {
     @GetMapping("/{id}")
     public ResponseEntity<byte[]> getResource(@PathVariable Integer id,
                                               @RequestHeader(value = "Range", required = false) String range) {
-        byte[] resourceData = resourceService.getResourceData(id);
+        byte[] resourceData = resourceFacade.getResourceData(id);
 
         if (range != null) {
             String[] parts = range.split("=");
@@ -68,7 +69,7 @@ public class ResourceController {
             .map(String::trim)
             .map(Integer::parseInt)
             .collect(Collectors.toList());
-        List<Integer> deletedIds = resourceService.deleteResources(ids);
+        List<Integer> deletedIds = resourceFacade.deleteResources(ids);
         DeletedResourceResponse deletedResourceResponse = new DeletedResourceResponse(deletedIds);
         return ResponseEntity.ok(deletedResourceResponse);
     }

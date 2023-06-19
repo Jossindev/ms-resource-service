@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.example.dto.StorageResponse;
 import org.example.exceptions.ResourceNotFoundException;
 import org.example.model.Resource;
 import org.example.repository.ResourceRepository;
@@ -18,36 +19,32 @@ public class ResourceService {
 
     private final S3Utils localstackStorage;
     private final ResourceRepository resourceRepository;
-    private final ResourceNotificationProducerService notificationService;
-
-    public Integer uploadResources(byte[] mp3File) {
-        String key = localstackStorage.uploadFile(mp3File);
+    public Integer uploadResource(byte[] mp3File, StorageResponse response) {
+        String key = localstackStorage.uploadFile(mp3File, response);
         Resource resource = Resource.builder()
             .s3Key(key)
             .build();
-        Integer resourceId = resourceRepository.save(resource).getId();
-        notificationService.notifyResourceUploaded(resourceId);
-        return resourceId;
+        return resourceRepository.save(resource).getId();
     }
 
-    public byte[] getResourceData(Integer id) throws ResourceNotFoundException {
+    public byte[] getResourceData(Integer id, String bucketName) throws ResourceNotFoundException {
         Optional<Resource> resource = resourceRepository.findById(id);
 
         if (resource.isEmpty()) {
             throw new ResourceNotFoundException("Resource not found. Id: " + id);
         }
 
-        return localstackStorage.downloadFile(resource.get().s3Key);
+        return localstackStorage.downloadFile(resource.get().s3Key, bucketName);
     }
 
-    public List<Integer> deleteResources(List<Integer> ids) {
+    public List<Integer> deleteResources(List<Integer> ids, String bucketName) {
         List<Integer> deletedIds = new ArrayList<>();
 
         for (Integer id : ids) {
             Optional<Resource> resource = resourceRepository.findById(id);
             if (resource.isPresent()) {
                 resourceRepository.deleteById(id);
-                localstackStorage.deleteFile(resource.get().s3Key);
+                localstackStorage.deleteFile(resource.get().s3Key, bucketName);
                 deletedIds.add(id);
             }
         }

@@ -15,6 +15,7 @@ import static org.mockito.Mockito.when;
 import java.io.ByteArrayInputStream;
 import java.util.UUID;
 
+import org.example.dto.StorageResponse;
 import org.example.utils.S3Utils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,7 +45,7 @@ public class AmazonS3UtilsTest {
         byte[] mp3File = new byte[] { 1, 2, 3 };
         when(amazonS3.doesBucketExistV2(BUCKET_NAME)).thenReturn(true);
 
-        String returnedObjectKey = s3Utils.uploadFile(mp3File);
+        String returnedObjectKey = s3Utils.uploadFile(mp3File, StorageResponse.builder().build());
 
         assertNotNull(returnedObjectKey);
         assertTrue(returnedObjectKey.endsWith(".mp3"));
@@ -61,7 +62,7 @@ public class AmazonS3UtilsTest {
         when(s3Object.getObjectContent()).thenReturn(objectContent);
         when(amazonS3.getObject(BUCKET_NAME, objectKey)).thenReturn(s3Object);
 
-        byte[] result = s3Utils.downloadFile(objectKey);
+        byte[] result = s3Utils.downloadFile(objectKey,"bucketName");
 
         assertNotNull(result);
         assertArrayEquals(content, result);
@@ -71,7 +72,7 @@ public class AmazonS3UtilsTest {
     public void testDeleteFile() {
         String objectKey = UUID.randomUUID() + ".mp3";
 
-        s3Utils.deleteFile(objectKey);
+        s3Utils.deleteFile(objectKey, "bucketName");
 
         verify(amazonS3, times(1)).deleteObject(BUCKET_NAME, objectKey);
     }
