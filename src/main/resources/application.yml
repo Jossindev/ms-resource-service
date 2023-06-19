@@ -14,6 +14,17 @@ spring:
   application:
     name: resource-service
 
+server:
+  port: 8099
+
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoint:
+    health:
+      show-details: always
+
 aws:
   region: us-east-1
   access-key: test
@@ -38,16 +49,21 @@ service:
 resilience4j:
   circuitbreaker:
     instances:
-      storage:
-        registerHealthIndicator: true
-        ringBufferSizeInClosedState: 5
-        ringBufferSizeInHalfOpenState: 3
-        waitDurationInOpenState: 10s
-        failureRateThreshold: 5
-        recordExceptions:
-          - org.springframework.web.client.HttpServerErrorException
-          - java.io.IOException
-          - java.util.concurrent.TimeoutException
-          - org.springframework.web.client.ResourceAccessException
-          - org.springframework.web.client.HttpClientErrorException
-          - feign.FeignException
+      storageConfig:
+        register-health-indicator: true
+        sliding-window-type: count_based
+        sliding-window-size: 5
+        failure-rate-threshold: 40
+        slow-call-rate-threshold: 40
+        permitted-number-of-calls-in-half-open-state: 1
+        max-wait-duration-in-half-open-state: 10s
+        wait-duration-in-open-state: 10s
+        slow-call-duration-threshold: 2s
+        writable-stack-trace-enabled: true
+        automatic-transition-from-open-to-half-open-enabled: true
+
+resilience4j.retry:
+  instances:
+    storageConfig:
+      maxRetryAttempts: 2
+      waitDuration: 5000

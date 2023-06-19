@@ -19,17 +19,20 @@ public class StorageServiceClient {
 
     private final StorageClient storageClient;
 
-    @CircuitBreaker(name = "storage", fallbackMethod = "fallback")
+    //    @Retry(name = "storageConfig", fallbackMethod = "storageFallback")
+    @CircuitBreaker(name = "storageConfig", fallbackMethod = "storageFallback")
     public List<StorageResponse> getStorages() {
+        log.info("Try to get storage details...");
         ResponseEntity<List<StorageResponse>> storages = storageClient.getStorages();
-        if (storages.getBody() == null) {
+        if (storages == null || storages.getBody() == null) {
+            log.warn("No storages found, use stub storage details...");
             throw new RuntimeException("No storages found, use stub storage details...");
         }
 
         return storages.getBody();
     }
 
-    public List<StorageResponse> fallback(Throwable t) {
+    public List<StorageResponse> storageFallback(Throwable t) {
         log.error("Error occurred when calling the method ", t);
         return Arrays.asList(StorageResponse.builder()
                 .storageType(StorageType.STAGING)
