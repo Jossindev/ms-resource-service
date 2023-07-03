@@ -51,6 +51,10 @@ services:
       - rabbit
       - ms-resource-processor-app
       - ms-song-app
+      - elasticsearch
+    labels:
+      collect_logs_with_filebeat: "true"
+      decode_log_event_to_json_object: "true"
     networks:
       - rabbit_network
       - microservices_network
@@ -103,6 +107,51 @@ services:
     networks:
       - rabbit_network
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.2.0
+    container_name: elasticsearch
+    ports:
+      - "9200:9200"
+    environment:
+      - "discovery.type=single-node"
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xmx512m -Xms512m"
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    networks:
+      - microservices_network
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.2.0
+    container_name: logstash
+    ports:
+      - "5000:5000/tcp"
+      - "5000:5000/udp"
+      - "5044:5044"
+    volumes:
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
+      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
+    restart: on-failure
+    depends_on:
+      - elasticsearch
+    networks:
+      - microservices_network
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.2.0
+    container_name: kibana
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    restart: on-failure
+    depends_on:
+      - elasticsearch
+    networks:
+      - microservices_network
+
 networks:
   rabbit_network:
     external: true
@@ -110,3 +159,7 @@ networks:
     external: true
   localstack_network:
     external: true
+
+volumes:
+  elasticsearch-data:
+    driver: local
