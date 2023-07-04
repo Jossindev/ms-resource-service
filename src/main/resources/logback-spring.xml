@@ -12,7 +12,7 @@
 
     <appender name="RollingFile"
         class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/apps/logs/song-service.log</file>
+        <file>/apps/logs/resource-service.log</file>
         <encoder
             class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <Pattern>
@@ -22,7 +22,7 @@
 
         <rollingPolicy
             class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>/apps/logs/archived/song-service-%d{yyyy-MM-dd}.%i.log
+            <fileNamePattern>/apps/logs/archived/resource-service-%d{yyyy-MM-dd}.%i.log
             </fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy
                 class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
